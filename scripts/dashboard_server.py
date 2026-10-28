@@ -43,7 +43,7 @@ class Handler(BaseHTTPRequestHandler):
                     f.seek(max(0,log.stat().st_size-6000));tail=f.read().decode('utf-8','replace').splitlines()[-20:]
             return self.json({'status':read_json(STORE/'runs/diagnostics-status.json'),'summary':read_json(STORE/'reports/diagnostics-track-b-v1/summary.json'),'log_tail':tail})
         if path=='/api/status':
-            d=current_state(read_json(STORE/'runs/pipeline-status.json'));d['storage_windows']='D:/mms_experiments/gg49-lanesegnet-lab_sj'
+            d=current_state(read_json(STORE/'runs/pipeline-status.json'));d['storage_windows']='D:/mms_experiments/gg49-lanesegnet-lab_gs'
             if d.get('phase') in ['camera','fusion','pilot'] and d.get('current_run'):
                 r=current_state(read_json(STORE/'runs'/d['current_run']/'summary.json'),d['current_run'])
                 if r.get('pid')==d.get('pid') and r.get('status'):d['status']=r['status']

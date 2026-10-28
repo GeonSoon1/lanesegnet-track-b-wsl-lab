@@ -2,11 +2,11 @@
   "schema_version": 1,
   "purpose": "Local planning and preflight configuration; NOT a runnable LaneSegNet model config",
   "created_date_kst": "2026-10-24",
-  "workspace": "/home/imella0707/personal/mms_project/gg49-lanesegnet-lab_sj",
+  "workspace": "/home/rjstns23/personal/mms_project/gg49-lanesegnet-lab_gs",
   "sources": {
-    "gt_builder": "/home/imella0707/personal/mms_project/gg49-lanesegnet-gt-builder",
+    "gt_builder": "/home/rjstns23/personal/mms_project/gg49-lanesegnet-gt-builder",
     "gt_builder_commit": "6b3671c29a66aebd6e6246dc31a5946dbcb0958f",
-    "model_source": "/home/imella0707/personal/mms_project/LaneSegNet",
+    "model_source": "/home/rjstns23/personal/mms_project/LaneSegNet",
     "model_commit": "9f12fe72a95dd991b3ec0a01cfbae5f3e9e961e0",
     "raw_root_windows": "D:/2026-APR-01_GG803SEC012",
     "shp_root_windows": "D:/SHP데이터/통합SHP",
@@ -16,7 +16,7 @@
   },
   "track": "B",
   "checkpoint": {
-    "path": "/mnt/d/mms_experiments/gg49-lanesegnet-lab_sj/checkpoints/lanesegnet_r50_8x1_24e_olv2_subset_A.pth",
+    "path": "/mnt/d/mms_experiments/gg49-lanesegnet-lab_gs/checkpoints/lanesegnet_r50_8x1_24e_olv2_subset_A.pth",
     "bytes": 182203523,
     "sha256": "9a31e3b0890ff6d9b6128fb6b470a2cb5850789103e2c309e46d6c443b460cda",
     "official_sha256_match": true,
@@ -39,8 +39,8 @@
     "micro_batch": 2,
     "gradient_accumulation": 2,
     "effective_batch": 4,
-    "global_lr": 2e-05,
-    "backbone_lr": 2e-06,
+    "global_lr": 2e-5,
+    "backbone_lr": 2e-6,
     "epochs_per_model": 24,
     "seed": 42,
     "split_counts": {
@@ -56,10 +56,7 @@
   "next_phase": "pilot -> camera24 -> fusion24 -> evaluation",
   "blocked_training_requirements": [],
   "training_target": {
-    "experiments": [
-      "camera",
-      "fusion"
-    ],
+    "experiments": ["camera", "fusion"],
     "epochs": 24,
     "environment": "mms",
     "seed": 42,
@@ -68,13 +65,13 @@
     "dashboard": "http://127.0.0.1:8765"
   },
   "storage": {
-    "project_root": "/home/imella0707/personal/mms_project/gg49-lanesegnet-lab_sj",
-    "storage_root": "/mnt/d/mms_experiments/gg49-lanesegnet-lab_sj",
-    "storage_root_windows": "D:/mms_experiments/gg49-lanesegnet-lab_sj",
+    "project_root": "/home/rjstns23/personal/mms_project/gg49-lanesegnet-lab_gs",
+    "storage_root": "/mnt/d/mms_experiments/gg49-lanesegnet-lab_gs",
+    "storage_root_windows": "D:/mms_experiments/gg49-lanesegnet-lab_gs",
     "raw_root": "/mnt/d/2026-APR-01_GG803SEC012",
     "shp_root": "/mnt/d/SHP데이터/통합SHP",
     "original_data_read_only": true,
-    "environment": "/home/imella0707/miniconda3/envs/mms",
+    "environment": "/home/rjstns23/miniconda3/envs/mms",
     "dashboard": "http://127.0.0.1:8765"
   }
 }

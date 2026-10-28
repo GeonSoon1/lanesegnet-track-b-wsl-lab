@@ -9,7 +9,7 @@ function Test-Gg49Dashboard {
     } catch { return $false }
 }
 try {
-    if (-not (Test-Path -LiteralPath 'D:\mms_experiments\gg49-lanesegnet-lab_sj\runs\pipeline-status.json')) {
+    if (-not (Test-Path -LiteralPath 'D:\mms_experiments\gg49-lanesegnet-lab_gs\runs\pipeline-status.json')) {
         throw 'Connect the D: drive containing the saved GG49 experiments, then retry.'
     }
     if (-not (Test-Gg49Dashboard)) {
@@ -20,8 +20,8 @@ try {
             & wsl.exe -d Ubuntu -u root -- mount -t drvfs D: /mnt/d -o metadata,uid=1000,gid=1000
             if ($LASTEXITCODE -ne 0) { throw 'Cannot mount D: in WSL.' }
         }
-        & wsl.exe -d Ubuntu -- bash /home/rjstns23/gg49-lanesegnet-lab_sj/scripts/ensure_dashboard.sh
-        if ($LASTEXITCODE -ne 0) { throw 'Dashboard startup failed; see D:\mms_experiments\gg49-lanesegnet-lab_sj\logs\dashboard.log' }
+        & wsl.exe -d Ubuntu -- bash /home/rjstns23/gg49-lanesegnet-lab_gs/scripts/ensure_dashboard.sh
+        if ($LASTEXITCODE -ne 0) { throw 'Dashboard startup failed; see D:\mms_experiments\gg49-lanesegnet-lab_gs\logs\dashboard.log' }
         $ready = $false
         for ($attempt = 0; $attempt -lt 15; $attempt++) {
             if (Test-Gg49Dashboard) { $ready = $true; break }

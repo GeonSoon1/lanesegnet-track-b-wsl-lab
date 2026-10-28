@@ -34,7 +34,7 @@ def apply_local_split(rows):
         labels[split]={'directed_positive_edges':edges,'lane_instances':lanes}
     assert labels['train']['directed_positive_edges']>0
     assert labels['val']['directed_positive_edges']>0
-    return {'policy':'sj-spatial-topology-v2','split_counts':counts,
+    return {'policy':'gs-spatial-topology-v2','split_counts':counts,
             'train_x_max_exclusive':253040,'val_x_interval_inclusive':[253190,253285],
             'test_x_min_exclusive':original_test_min,'minimum_cross_split_x_gaps_m':gaps,
             'label_counts':labels,'test_region_unchanged':True,

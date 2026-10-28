@@ -5,7 +5,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 export GG49_ROOT="$ROOT"
 export PYTHONPATH="$ROOT/src:$ROOT/engine"
 export LD_LIBRARY_PATH="/usr/lib/wsl/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-STORE=/mnt/d/mms_experiments/gg49-lanesegnet-lab_sj
+STORE=/mnt/d/mms_experiments/gg49-lanesegnet-lab_gs
 mkdir -p "$STORE"/{cache/tmp,cache/pip,cache/matplotlib,cache/torch,cache/huggingface,cache/cuda,logs,reports,runs,checkpoints}
 export TMPDIR="$STORE/cache/tmp" TMP="$STORE/cache/tmp" TEMP="$STORE/cache/tmp"
 export PIP_CACHE_DIR="$STORE/cache/pip" MPLCONFIGDIR="$STORE/cache/matplotlib"

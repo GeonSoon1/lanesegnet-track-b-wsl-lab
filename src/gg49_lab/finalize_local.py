@@ -44,8 +44,8 @@ def main():
  with zipfile.ZipFile(shared) as z:assert z.testzip() is None
  report['shared_zip']={'path':str(shared),'sha256':hashlib.sha256(shared.read_bytes()).hexdigest(),'bytes':shared.stat().st_size}
  with (ROOT/'docs/mms_lanesegnet_training_experiment.md').open('a') as f:f.write('\n\n## 새 PC 실행 최종 검증\n\n'+text)
- with (ROOT/'docs/LOCAL_WINDOWS_WSL_SJ.md').open('a') as f:f.write('\n\n'+text)
- guide=ROOT/'docs/LOCAL_WINDOWS_WSL_SJ.md'
+ with (ROOT/'docs/LOCAL_WINDOWS_WSL_gs.md').open('a') as f:f.write('\n\n'+text)
+ guide=ROOT/'docs/LOCAL_WINDOWS_WSL_gs.md'
  guide_text=guide.read_text().replace('환경·데이터 준비와 초기 1 epoch 시연 및 SHP 검증을 완료했다. 라벨 분포 점검 후 v2 분할로 시연 및 24 epoch 비교 학습을 새로 진행한다. 최종 완료 여부와 수치는 SSD의 runs/reports가 근거다.','영상/결합 모델 각24epoch, best checkpoint test 평가와 SHP 재읽기 검증을 완료했다. 최종 전체 검증의 근거는 reports/LOCAL_COMPLETION_AUDIT.json이다. 아래 과정 기록과 최종 결과를 구분해 확인한다.')
  guide.write_text(guide_text);(STORE/'RUN_GUIDE_KO.md').write_text(guide_text)
  # Capture the actual local implementation, including new untracked scripts.

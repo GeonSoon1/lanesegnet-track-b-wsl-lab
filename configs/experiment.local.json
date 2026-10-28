@@ -2,20 +2,20 @@
   "schema_version": 1,
   "purpose": "Local preflight snapshot; live execution evidence is runs/pipeline-status.json and process identity.",
   "created_date_kst": "2026-10-28",
-  "workspace": "/home/rjstns23/gg49-lanesegnet-lab_sj",
+  "workspace": "/home/rjstns23/gg49-lanesegnet-lab_gs",
   "sources": {
     "gt_builder": "/home/rjstns23/gg49-lanesegnet-gt-builder",
     "gt_builder_commit": "6b3671c29a66aebd6e6246dc31a5946dbcb0958f",
-    "model_source": "/home/rjstns23/gg49-lanesegnet-lab_sj/engine",
+    "model_source": "/home/rjstns23/gg49-lanesegnet-lab_gs/engine",
     "raw_root_windows": "D:/2026-APR-01_GG803SEC012",
-    "shp_root_windows": "D:/mms_experiments/gg49-lanesegnet-lab_sj/data/shp/통합SHP",
+    "shp_root_windows": "D:/mms_experiments/gg49-lanesegnet-lab_gs/data/shp/통합SHP",
     "wsl_raw_access": "D: mounted; original paths read-only in application",
     "raw_root_linux": "/mnt/d/2026-APR-01_GG803SEC012",
-    "shp_root_linux": "/mnt/d/mms_experiments/gg49-lanesegnet-lab_sj/data/shp/통합SHP"
+    "shp_root_linux": "/mnt/d/mms_experiments/gg49-lanesegnet-lab_gs/data/shp/통합SHP"
   },
   "track": "B",
   "checkpoint": {
-    "path": "/mnt/d/mms_experiments/gg49-lanesegnet-lab_sj/checkpoints/lanesegnet_r50_8x1_24e_olv2_subset_A.pth",
+    "path": "/mnt/d/mms_experiments/gg49-lanesegnet-lab_gs/checkpoints/lanesegnet_r50_8x1_24e_olv2_subset_A.pth",
     "bytes": 182203523,
     "sha256": "9a31e3b0890ff6d9b6128fb6b470a2cb5850789103e2c309e46d6c443b460cda",
     "official_sha256_match": true,
@@ -25,12 +25,8 @@
     "shp_encoding": "cp949",
     "crs_epsg": 32652,
     "all_frames": 353,
-    "work": "/mnt/d/mms_experiments/gg49-lanesegnet-lab_sj/artifacts/gt-track-b-v1",
-    "masked_codes": [
-      "223",
-      "224",
-      "999"
-    ],
+    "work": "/mnt/d/mms_experiments/gg49-lanesegnet-lab_gs/artifacts/gt-track-b-v1",
+    "masked_codes": ["223", "224", "999"],
     "semantic_codebook_verified_for_local_input": true,
     "geometry_QA": "coarse image projection inspected; not survey-certified"
   },
@@ -41,8 +37,8 @@
     "micro_batch": 2,
     "gradient_accumulation": 2,
     "effective_batch": 4,
-    "global_lr": 2e-05,
-    "backbone_lr": 2e-06,
+    "global_lr": 2e-5,
+    "backbone_lr": 2e-6,
     "epochs_per_model": 24,
     "seed": 42,
     "split_counts": {
@@ -52,35 +48,32 @@
       "val": 14,
       "train": 228
     },
-    "split_policy": "sj-spatial-topology-v2"
+    "split_policy": "gs-spatial-topology-v2"
   },
   "training_ready": true,
   "training_started": true,
   "next_phase": "camera24 -> fusion24 -> held-out evaluation -> QGIS export validation",
   "blocked_training_requirements": [],
   "training_target": {
-    "experiments": [
-      "camera",
-      "fusion"
-    ],
+    "experiments": ["camera", "fusion"],
     "epochs": 24,
-    "environment": "/home/rjstns23/gg49-lanesegnet-lab_sj/.venv-mms",
+    "environment": "/home/rjstns23/gg49-lanesegnet-lab_gs/.venv-mms",
     "seed": 42,
     "effective_batch_size": 4,
     "lidar_half_window_seconds": 0.1,
     "dashboard": "http://127.0.0.1:8765"
   },
   "storage": {
-    "project_root": "/home/rjstns23/gg49-lanesegnet-lab_sj",
-    "storage_root": "/mnt/d/mms_experiments/gg49-lanesegnet-lab_sj",
-    "storage_root_windows": "D:/mms_experiments/gg49-lanesegnet-lab_sj",
+    "project_root": "/home/rjstns23/gg49-lanesegnet-lab_gs",
+    "storage_root": "/mnt/d/mms_experiments/gg49-lanesegnet-lab_gs",
+    "storage_root_windows": "D:/mms_experiments/gg49-lanesegnet-lab_gs",
     "raw_root": "/mnt/d/2026-APR-01_GG803SEC012",
-    "shp_root": "/mnt/d/mms_experiments/gg49-lanesegnet-lab_sj/data/shp/통합SHP",
+    "shp_root": "/mnt/d/mms_experiments/gg49-lanesegnet-lab_gs/data/shp/통합SHP",
     "original_data_read_only": true,
-    "environment": "/home/rjstns23/gg49-lanesegnet-lab_sj/.venv-mms",
+    "environment": "/home/rjstns23/gg49-lanesegnet-lab_gs/.venv-mms",
     "dashboard": "http://127.0.0.1:8765",
-    "run_prefix": "sj-20261028-v2-"
+    "run_prefix": "gs-20261028-v2-"
   },
-  "run_prefix": "sj-20261028-v2-",
-  "runtime_status_source": "/mnt/d/mms_experiments/gg49-lanesegnet-lab_sj/runs/pipeline-status.json"
+  "run_prefix": "gs-20261028-v2-",
+  "runtime_status_source": "/mnt/d/mms_experiments/gg49-lanesegnet-lab_gs/runs/pipeline-status.json"
 }

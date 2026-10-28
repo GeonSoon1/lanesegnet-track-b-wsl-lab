@@ -6,9 +6,9 @@ mountpoint -q /mnt/d || { echo "D: is not mounted in WSL. Connect D: and mount i
 export PYTHONPATH="$root/src:$root/engine"
 export LD_LIBRARY_PATH="/usr/lib/wsl/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 export PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=4 OPENBLAS_NUM_THREADS=4
-export TMPDIR=/mnt/d/mms_experiments/gg49-lanesegnet-lab_sj/cache/tmp
-export MPLCONFIGDIR=/mnt/d/mms_experiments/gg49-lanesegnet-lab_sj/cache/matplotlib
-py=/home/rjstns23/gg49-lanesegnet-lab_sj/.venv-mms/bin/python
+export TMPDIR=/mnt/d/mms_experiments/gg49-lanesegnet-lab_gs/cache/tmp
+export MPLCONFIGDIR=/mnt/d/mms_experiments/gg49-lanesegnet-lab_gs/cache/matplotlib
+py=/home/rjstns23/gg49-lanesegnet-lab_gs/.venv-mms/bin/python
 "$py" - <<'PY'
 from gg49_lab.dataset import load_frames
 from gg49_lab.common import STORE
@@ -24,5 +24,5 @@ exec 9>"$TMPDIR/recording-demo.lock"
 flock -n 9 || { echo 'Another recording demo is running.' >&2; exit 2; }
 run="demo-camera-$(date +%Y%m%d-%H%M%S)-$$"
 echo "Starting a NEW camera demonstration: 1 epoch; run=$run"
-echo "Outputs: /mnt/d/mms_experiments/gg49-lanesegnet-lab_sj/runs/$run"
+echo "Outputs: /mnt/d/mms_experiments/gg49-lanesegnet-lab_gs/runs/$run"
 "$py" -u -m gg49_lab.train train --mode camera --resolution 384 --batch 2 --epochs 1 --run "$run"

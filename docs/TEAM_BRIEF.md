@@ -1,4 +1,4 @@
-> 2026-10-28 이 PC의 새 실험은 `sj-20261028-v2-`입니다. 아래 기존 저자의 결과와 구분하세요. 실제 경로·분할·환경은 [LOCAL_WINDOWS_WSL_SJ.md](LOCAL_WINDOWS_WSL_SJ.md), 현재 완료 여부는 SSD의 runs/pipeline-status.json을 확인하세요.
+> 2026-10-28 이 PC의 새 실험은 `gs-20261028-v2-`입니다. 아래 기존 저자의 결과와 구분하세요. 실제 경로·분할·환경은 [LOCAL_WINDOWS_WSL_gs.md](LOCAL_WINDOWS_WSL_gs.md), 현재 완료 여부는 SSD의 runs/pipeline-status.json을 확인하세요.
 
 # GG49 팀 공유용 쉬운 설명
 
@@ -57,4 +57,4 @@
 
 수치의 근거·조건·로그·GIS 출력은 D의 reports/followup-45-v1/EXPERIMENTS_4_5.md, summary.json, verification.json에 있습니다.
 
-실제 학습 설정과 설명: [CONFIG_SUMMARY.md](CONFIG_SUMMARY.md). SHP 공유본: D:/mms_experiments/gg49-lanesegnet-lab_sj/exports/team-share-v1.zip
+실제 학습 설정과 설명: [CONFIG_SUMMARY.md](CONFIG_SUMMARY.md). SHP 공유본: D:/mms_experiments/gg49-lanesegnet-lab_gs/exports/team-share-v1.zip

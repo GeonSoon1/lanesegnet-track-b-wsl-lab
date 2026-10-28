@@ -5,7 +5,7 @@ import fiona
 import numpy as np
 from fiona.crs import CRS
 ROOT=Path(__file__).resolve().parents[1]
-STORE=Path('/mnt/d/mms_experiments/gg49-lanesegnet-lab_sj')
+STORE=Path('/mnt/d/mms_experiments/gg49-lanesegnet-lab_gs')
 SRC=STORE/'reports/followup-45-v1'
 OUT=STORE/'exports/team-share-v1'
 

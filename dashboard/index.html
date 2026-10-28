@@ -1,9 +1,714 @@
-<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GG49 · 학습 관측소</title><style>
-:root{font-family:system-ui,"Malgun Gothic",sans-serif;color:#182b3c;background:#f1f4f6;font-size:15px}*{box-sizing:border-box}body{margin:0}main{max-width:1420px;margin:auto;padding:32px}header{display:flex;justify-content:space-between;gap:20px;align-items:start}h1{font-size:32px;letter-spacing:-1.3px;margin:9px 0}h2{font-size:16px;margin:0 0 16px}p{line-height:1.6}.eyebrow{letter-spacing:2px;font-size:11px;color:#557083;font-weight:700}.muted{color:#6c7e8c;font-size:12px}.pill{border-radius:30px;padding:8px 14px;background:#deebf8;color:#185582;font-size:12px;font-weight:700}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:24px 0}.card,.panel{background:#fff;border:1px solid #dce3e8;border-radius:12px;padding:21px}.card span{font-size:12px;color:#6c7e8c}.value{font-size:26px;font-weight:650;margin:10px 0 5px}.columns{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:18px 0}.panel.wide{margin-top:18px}.stages{display:flex;gap:8px;flex-wrap:wrap;margin:24px 0}.stage{padding:7px 11px;border:1px solid #d9e2e9;border-radius:6px;font-size:12px;background:white}.stage.done{background:#e9f6ee;color:#247448}.stage.active{background:#e4effe;color:#175ab1;border-color:#8cb4e9}.error{color:#b03f30}svg{width:100%;height:260px;display:block}select,button{border:1px solid #cbd6df;border-radius:6px;padding:8px 10px;background:white;color:#243c50;font:inherit;font-size:12px}label{font-size:12px}pre{font:11px/1.65 ui-monospace,monospace;max-height:270px;overflow:auto;color:#415567;white-space:pre-wrap}table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;border-bottom:1px solid #edf0f3;padding:12px 7px}th{color:#718290;font-weight:500}.preview{display:grid;grid-template-columns:1fr 1fr;gap:10px}.preview img{max-width:100%;border:1px solid #dce3e8;border-radius:6px}.empty{color:#81909b;font-size:13px;padding:30px 15px;text-align:center}.tools{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:8px 0}.bar{height:4px;background:#e6edf2;border-radius:3px;overflow:hidden}.bar i{height:100%;background:#2879c8;display:block;transition:width 1s}.storage{font-size:11px;word-break:break-all}@media(max-width:800px){main{padding:16px}.grid{grid-template-columns:1fr 1fr}.columns{grid-template-columns:1fr}header{display:block}.preview{grid-template-columns:1fr}}
-</style><main><header><div><div class="eyebrow">GG49 · LANESEGNET LAB / SJ</div><h1>학습 관측소</h1><div class="muted">카메라 비교 실험 → RGB + LiDAR 결합 · RTX 3060 12GB</div></div><div><span class="pill" id="state">연결 중</span><p class="muted" id="updated">실제 측정값을 기다리고 있습니다.</p></div></header><div class="tools" style="margin-top:20px"><a href="/experiments" style="font-weight:700;color:#175ab1">기존 실험4·5 화면 (이번 실행 결과와 별개)</a> · <a href="/diagnostics" style="font-weight:700;color:#175ab1">기존 Track B 진단 화면 (이번 실행 결과와 별개)</a></div><div class="stages" id="stages"></div><div class="grid"><div class="card"><span>현재 작업</span><div class="value" id="phase">—</div><div class="muted" id="message"></div></div><div class="card"><span>학습 진행 · 선택한 실험</span><div class="value" id="epoch">— / 24</div><div class="bar"><i id="progress" style="width:0"></i></div><p class="muted" id="step">아직 학습을 시작하지 않았습니다.</p></div><div class="card"><span>GPU 메모리 · 전체</span><div class="value" id="memory">—</div><div class="muted" id="gpu">—</div></div><div class="card"><span>최근 학습 / 검증 loss</span><div class="value" id="loss">—</div><div class="muted" id="val">측정값 없음</div></div></div><div class="panel"><div class="tools"><h2 style="margin:0;flex:1">실험 모니터</h2><select id="run"></select><select id="component"><option value="total">Total loss</option></select><label><input type="checkbox" id="smooth" checked> EMA 평활선</label></div><p class="muted" id="runinfo">지표가 생성되면 그래프가 표시됩니다.</p><div class="columns"><div><h2>학습 loss · optimizer step</h2><svg id="train" viewBox="0 0 600 260"></svg></div><div><h2>학습 / 검증 loss · epoch</h2><svg id="validation" viewBox="0 0 600 260"></svg></div></div><div class="muted">파랑: 학습 원본 · 주황: 평활선 또는 검증 · loss는 모델이 반환한 가중치 적용값입니다. 학습 완료와 성능 개선은 별개로 평가합니다.</div></div><div class="columns"><div class="panel"><h2>실험 비교</h2><table><thead><tr><th>모델</th><th>상태</th><th>Epoch / step</th><th>Best val</th></tr></thead><tbody id="runs"></tbody></table></div><div class="panel"><h2>실행 조건</h2><pre id="settings">환경과 메모리 검사 중입니다.</pre><div class="storage">대용량 저장: D:\mms_experiments\gg49-lanesegnet-lab_sj</div></div></div><div class="panel wide"><h2>정답 / 예측 검수</h2><div class="preview" id="preview"><div class="empty">입력 검수와 실제 예측 이미지가 생성되면 표시됩니다.</div></div></div><div class="panel wide"><h2>최근 실행 로그</h2><pre id="logs"></pre></div><div class="panel wide" id="completion" hidden><h2>최종 비교 결과</h2><p><a href="/files/reports/LOCAL_TRAINING_RESULTS.md">완료 보고서</a> · <a href="/files/reports/experiment-comparison.json">정량 결과 JSON</a></p><img id="comparison-img" style="max-width:100%" alt="두 모델의 실제 held-out 평가 비교"></div><p class="muted">이 PC 전용 · 5초마다 갱신 · 브라우저를 닫아도 학습은 계속됩니다. 외부 서비스로 학습 데이터를 보내지 않습니다.</p></main><script>
-const $=x=>document.getElementById(x), stages=[['environment','환경'],['data','데이터'],['gt','최종 정답'],['qa','투영 검수'],['model','모델 연결'],['tune','메모리 검사'],['pilot','짧은 학습'],['camera','영상 모델 학습'],['fusion','결합 모델 학습'],['export','SHP 변환·검증'],['evaluation','결과 비교'],['done','완료']];let allRuns=[],data=[],selected='',following=true;
-const stateName=x=>({running:'실행 중',validating:'검증 중',completed:'완료',failed:'실패',interrupted:'중단'}[x]??x);
-function chart(id,series){let s=$(id),valid=series.filter(a=>a.pts.length);s.replaceChildren();if(!valid.length){s.innerHTML='<text x="300" y="125" text-anchor="middle" fill="#8394a0" font-size="13">아직 측정값이 없습니다</text>';return}let points=valid.flatMap(a=>a.pts),xs=points.map(a=>a[0]),ys=points.map(a=>a[1]),xmin=Math.min(...xs),xmax=Math.max(...xs),ymin=Math.min(...ys),ymax=Math.max(...ys);if(xmin===xmax)xmax++;if(ymin===ymax)ymax=ymin+1;let pad=(ymax-ymin)*.08;ymax+=pad;ymin=ymin>=0?Math.max(0,ymin-pad):ymin-pad;const X=x=>52+(x-xmin)/(xmax-xmin)*530,Y=y=>226-(y-ymin)/(ymax-ymin)*205;for(let i=0;i<5;i++){let y=ymin+(ymax-ymin)*i/4;s.innerHTML+=`<line x1="52" x2="582" y1="${Y(y)}" y2="${Y(y)}" stroke="#e9eef2"/><text x="45" y="${Y(y)+4}" text-anchor="end" fill="#8797a4" font-size="10">${y.toFixed(2)}</text>`}s.innerHTML+=`<text x="52" y="250" fill="#8797a4" font-size="10">${xmin.toFixed(0)}</text><text x="582" y="250" text-anchor="end" fill="#8797a4" font-size="10">${xmax.toFixed(0)}</text>`;for(const a of valid){let poly=a.pts.map(p=>`${X(p[0])},${Y(p[1])}`).join(' ');s.innerHTML+=`<polyline points="${poly}" fill="none" stroke="${a.color}" stroke-width="1.6"/>`;if(a.pts.length<30)for(const p of a.pts)s.innerHTML+=`<circle cx="${X(p[0])}" cy="${Y(p[1])}" r="2" fill="${a.color}"/>`}}
-function plots(){let key=$('component').value,get=r=>key==='total'?r.total:r.losses?.[key],steps=data.filter(r=>r.kind==='step'&&Number.isFinite(get(r))),epochs=data.filter(r=>r.kind==='epoch'),series=[{color:'#377ec0',pts:steps.map(r=>[r.step,get(r)])}];if($('smooth').checked){let e;series.push({color:'#d98923',pts:steps.map(r=>{e=e===undefined?get(r):.9*e+.1*get(r);return[r.step,e]})})}chart('train',series);chart('validation',[{color:'#377ec0',pts:epochs.filter(r=>Number.isFinite(key==='total'?r.train_total:r.train_losses?.[key])).map(r=>[r.epoch,key==='total'?r.train_total:r.train_losses[key]])},{color:'#d98923',pts:epochs.filter(r=>Number.isFinite(key==='total'?r.val_total:r.val_losses?.[key])).map(r=>[r.epoch,key==='total'?r.val_total:r.val_losses[key]])}]);let run=allRuns.find(r=>r.id===selected),last=steps.at(-1),ep=epochs.at(-1);$('epoch').textContent=run?.kind==='pilot'?`${run?.step??0} / 100 steps`:`${run?.epoch??0} / ${run?.settings?.epochs??24}`;$('progress').style.width=`${run?.kind==='pilot'?(run?.step??0):((run?.epoch??0)/(run?.settings?.epochs||24)*100)}%`;$('step').textContent=last?`step ${last.step} · ${(last.seconds??0).toFixed(1)} 초/step`:'지표 대기 중';$('loss').textContent=last?last.total.toFixed(4):'—';$('val').textContent=ep?`검증 ${ep.val_total.toFixed(4)} · epoch ${ep.epoch} · best epoch ${run?.best_epoch??'—'} (${Number.isFinite(run?.best_val)?run.best_val.toFixed(4):'—'})`:'검증값 없음';let eta='';if(run?.kind==='training'&&['running','validating'].includes(run?.status)&&steps.length>=5){let left=Math.max(0,Math.ceil((run.settings?.train_frames??0)/4)*(run.settings?.epochs??24)-(run.step??0));let secs=steps.slice(-20).reduce((s,r)=>s+(r.seconds??0),0)/Math.min(20,steps.length)*left;if(epochs.length){let ep=epochs.at(-1);let wall=ep.time&&run.started_at?Math.max(0,(Date.parse(ep.time)-Date.parse(run.started_at))/1000):ep.seconds;secs=wall/ep.epoch*Math.max(0,(run.settings?.epochs??24)-ep.epoch)}eta=' · 예상 '+Math.floor(secs/3600)+'시간 '+Math.ceil(secs%3600/60)+'분 남음'}$('runinfo').textContent=run?`${run.id} · ${stateName(run.status)} · ${run.modality??''}${eta}`:'지표 대기 중';$('settings').textContent=JSON.stringify({...run?.settings,run_note:run?.stop_reason??run?.error??null,current_learning_rate:last?.lr??null,elapsed_since_start_seconds:run?.started_at?Math.max(0,((run.completed_at?Date.parse(run.completed_at):(['interrupted','failed'].includes(run.status)?Date.parse(run.time??run.updated_at):Date.now()))-Date.parse(run.started_at))/1000):null},null,2);let downloads=document.getElementById('local-downloads');if(!downloads){downloads=document.createElement('div');downloads.id='local-downloads';$('settings').after(downloads)}downloads.replaceChildren();if(run?.exports?.zip){let a=document.createElement('a');a.href='/files/'+run.exports.zip;a.textContent='QGIS SHP ZIP 다운로드';downloads.append(a)}let pics=run?.previews??[];if(pics.length){$('preview').replaceChildren();for(const p of pics){let img=document.createElement('img');img.src='/files/'+p+'?t='+Date.now();let caption=p.includes('qgis-export')?`Best epoch ${run?.best_epoch??'—'} · ${run?.settings?.epochs===1?'validation 시연':'별도 test'} 추론 및 지도 좌표 결과`:p.endsWith('loss.png')?'학습 / validation loss 곡선':'학습 과정의 최근 epoch 예측 (best 추론 결과와 구분)';img.alt=caption;let figure=document.createElement('figure');figure.style.margin='0';let label=document.createElement('figcaption');label.textContent=caption;label.className='muted';figure.append(img,label);$('preview').append(figure)}}}
-async function refresh(){try{let [status,runs]=await Promise.all([fetch('/api/status').then(r=>r.json()),fetch('/api/runs').then(r=>r.json())]);allRuns=runs;$('state').textContent=status.status==='completed'?(status.phase==='done'?'전체 완료':'단계 완료'):(stateName(status.status)??'준비 중');$('state').className='pill '+(['failed','blocked'].includes(status.status)?'error':'');$('phase').textContent=stages.find(s=>s[0]===status.phase)?.[1]??status.phase??'준비';$('message').textContent=status.message??'';$('updated').textContent='최근 기록 '+(status.updated_at?new Date(status.updated_at).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'}):'—');$('stages').replaceChildren();for(const [id,name]of stages){let d=document.createElement('span');d.className='stage '+(status.phase===id?'active':(['camera','fusion'].includes(id)?runs.some(r=>r.modality===id&&r.settings?.epochs===24&&r.status==='completed'):id==='evaluation'?Boolean(status.comparison):(status.completed_phases??[]).includes(id))?'done':'');d.textContent=name;$('stages').append(d)}if(status.gpu){$('memory').textContent=(status.gpu.used_mib/1024).toFixed(1)+' / '+(status.gpu.total_mib/1024).toFixed(0)+' GB';$('gpu').textContent=status.gpu.name+' · 사용률 '+status.gpu.utilization+'%'}$('logs').textContent=(status.log_tail??[]).join('\n');$('run').replaceChildren();for(const r of runs){let o=document.createElement('option');o.value=r.id;o.textContent=r.id;$('run').append(o)}if(following||!runs.some(r=>r.id===selected))selected=status.current_run??runs.at(-1)?.id??'';$('run').value=selected;$('runs').replaceChildren();for(const r of runs){let tr=document.createElement('tr');for(const v of [r.id,stateName(r.status),r.kind==='pilot'?`${r.step??0}/100 step`:(r.epoch??0),Number.isFinite(r.best_val)?r.best_val.toFixed(4):'—']){let td=document.createElement('td');td.textContent=v;tr.append(td)}$('runs').append(tr)}data=selected?await fetch('/api/runs/'+selected+'/metrics').then(r=>r.json()):[];let key=$('component').value,keys=[...new Set(data.flatMap(r=>Object.keys(r.losses??r.train_losses??{})))].sort();$('component').replaceChildren();for(const k of ['total',...keys]){let o=document.createElement('option');o.value=k;o.textContent=k==='total'?'Total loss':k;$('component').append(o)}$('component').value=['total',...keys].includes(key)?key:'total';plots();if(status.phase==='done'&&status.status==='completed'){$('completion').hidden=false;$('comparison-img').src='/files/reports/comparison.png';let shared=document.getElementById('shared-zip');if(status.share_zip&&!shared){shared=document.createElement('a');shared.id='shared-zip';shared.href='/files/'+status.share_zip;shared.textContent='두 모델 QGIS SHP 공유 ZIP 다운로드';$('completion').append(shared)}}}catch(e){$('state').textContent='연결 재시도 중';$('message').textContent=String(e)}}$('run').onchange=()=>{selected=$('run').value;following=false;refresh()};$('component').onchange=plots;$('smooth').onchange=plots;refresh();setInterval(refresh,5000);
-</script></html>
+<!DOCTYPE html>
+<html lang="ko">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>GG49 · 학습 관측소</title
+  ><style>
+    :root {
+      font-family: system-ui, "Malgun Gothic", sans-serif;
+      color: #182b3c;
+      background: #f1f4f6;
+      font-size: 15px;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+    }
+    main {
+      max-width: 1420px;
+      margin: auto;
+      padding: 32px;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      align-items: start;
+    }
+    h1 {
+      font-size: 32px;
+      letter-spacing: -1.3px;
+      margin: 9px 0;
+    }
+    h2 {
+      font-size: 16px;
+      margin: 0 0 16px;
+    }
+    p {
+      line-height: 1.6;
+    }
+    .eyebrow {
+      letter-spacing: 2px;
+      font-size: 11px;
+      color: #557083;
+      font-weight: 700;
+    }
+    .muted {
+      color: #6c7e8c;
+      font-size: 12px;
+    }
+    .pill {
+      border-radius: 30px;
+      padding: 8px 14px;
+      background: #deebf8;
+      color: #185582;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin: 24px 0;
+    }
+    .card,
+    .panel {
+      background: #fff;
+      border: 1px solid #dce3e8;
+      border-radius: 12px;
+      padding: 21px;
+    }
+    .card span {
+      font-size: 12px;
+      color: #6c7e8c;
+    }
+    .value {
+      font-size: 26px;
+      font-weight: 650;
+      margin: 10px 0 5px;
+    }
+    .columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin: 18px 0;
+    }
+    .panel.wide {
+      margin-top: 18px;
+    }
+    .stages {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 24px 0;
+    }
+    .stage {
+      padding: 7px 11px;
+      border: 1px solid #d9e2e9;
+      border-radius: 6px;
+      font-size: 12px;
+      background: white;
+    }
+    .stage.done {
+      background: #e9f6ee;
+      color: #247448;
+    }
+    .stage.active {
+      background: #e4effe;
+      color: #175ab1;
+      border-color: #8cb4e9;
+    }
+    .error {
+      color: #b03f30;
+    }
+    svg {
+      width: 100%;
+      height: 260px;
+      display: block;
+    }
+    select,
+    button {
+      border: 1px solid #cbd6df;
+      border-radius: 6px;
+      padding: 8px 10px;
+      background: white;
+      color: #243c50;
+      font: inherit;
+      font-size: 12px;
+    }
+    label {
+      font-size: 12px;
+    }
+    pre {
+      font: 11px/1.65 ui-monospace, monospace;
+      max-height: 270px;
+      overflow: auto;
+      color: #415567;
+      white-space: pre-wrap;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    th,
+    td {
+      text-align: left;
+      border-bottom: 1px solid #edf0f3;
+      padding: 12px 7px;
+    }
+    th {
+      color: #718290;
+      font-weight: 500;
+    }
+    .preview {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .preview img {
+      max-width: 100%;
+      border: 1px solid #dce3e8;
+      border-radius: 6px;
+    }
+    .empty {
+      color: #81909b;
+      font-size: 13px;
+      padding: 30px 15px;
+      text-align: center;
+    }
+    .tools {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin: 8px 0;
+    }
+    .bar {
+      height: 4px;
+      background: #e6edf2;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .bar i {
+      height: 100%;
+      background: #2879c8;
+      display: block;
+      transition: width 1s;
+    }
+    .storage {
+      font-size: 11px;
+      word-break: break-all;
+    }
+    @media (max-width: 800px) {
+      main {
+        padding: 16px;
+      }
+      .grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .columns {
+        grid-template-columns: 1fr;
+      }
+      header {
+        display: block;
+      }
+      .preview {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+  <main>
+    <header>
+      <div>
+        <div class="eyebrow">GG49 · LANESEGNET LAB / gs</div>
+        <h1>학습 관측소</h1>
+        <div class="muted">
+          카메라 비교 실험 → RGB + LiDAR 결합 · RTX 3060 12GB
+        </div>
+      </div>
+      <div>
+        <span class="pill" id="state">연결 중</span>
+        <p class="muted" id="updated">실제 측정값을 기다리고 있습니다.</p>
+      </div>
+    </header>
+    <div class="tools" style="margin-top: 20px">
+      <a href="/experiments" style="font-weight: 700; color: #175ab1"
+        >기존 실험4·5 화면 (이번 실행 결과와 별개)</a
+      >
+      ·
+      <a href="/diagnostics" style="font-weight: 700; color: #175ab1"
+        >기존 Track B 진단 화면 (이번 실행 결과와 별개)</a
+      >
+    </div>
+    <div class="stages" id="stages"></div>
+    <div class="grid">
+      <div class="card">
+        <span>현재 작업</span>
+        <div class="value" id="phase">—</div>
+        <div class="muted" id="message"></div>
+      </div>
+      <div class="card">
+        <span>학습 진행 · 선택한 실험</span>
+        <div class="value" id="epoch">— / 24</div>
+        <div class="bar"><i id="progress" style="width: 0"></i></div>
+        <p class="muted" id="step">아직 학습을 시작하지 않았습니다.</p>
+      </div>
+      <div class="card">
+        <span>GPU 메모리 · 전체</span>
+        <div class="value" id="memory">—</div>
+        <div class="muted" id="gpu">—</div>
+      </div>
+      <div class="card">
+        <span>최근 학습 / 검증 loss</span>
+        <div class="value" id="loss">—</div>
+        <div class="muted" id="val">측정값 없음</div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="tools">
+        <h2 style="margin: 0; flex: 1">실험 모니터</h2>
+        <select id="run"></select
+        ><select id="component">
+          <option value="total">Total loss</option></select
+        ><label><input type="checkbox" id="smooth" checked /> EMA 평활선</label>
+      </div>
+      <p class="muted" id="runinfo">지표가 생성되면 그래프가 표시됩니다.</p>
+      <div class="columns">
+        <div>
+          <h2>학습 loss · optimizer step</h2>
+          <svg id="train" viewBox="0 0 600 260"></svg>
+        </div>
+        <div>
+          <h2>학습 / 검증 loss · epoch</h2>
+          <svg id="validation" viewBox="0 0 600 260"></svg>
+        </div>
+      </div>
+      <div class="muted">
+        파랑: 학습 원본 · 주황: 평활선 또는 검증 · loss는 모델이 반환한 가중치
+        적용값입니다. 학습 완료와 성능 개선은 별개로 평가합니다.
+      </div>
+    </div>
+    <div class="columns">
+      <div class="panel">
+        <h2>실험 비교</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>모델</th>
+              <th>상태</th>
+              <th>Epoch / step</th>
+              <th>Best val</th>
+            </tr>
+          </thead>
+          <tbody id="runs"></tbody>
+        </table>
+      </div>
+      <div class="panel">
+        <h2>실행 조건</h2>
+        <pre id="settings">환경과 메모리 검사 중입니다.</pre>
+        <div class="storage">
+          대용량 저장: D:\mms_experiments\gg49-lanesegnet-lab_gs
+        </div>
+      </div>
+    </div>
+    <div class="panel wide">
+      <h2>정답 / 예측 검수</h2>
+      <div class="preview" id="preview">
+        <div class="empty">
+          입력 검수와 실제 예측 이미지가 생성되면 표시됩니다.
+        </div>
+      </div>
+    </div>
+    <div class="panel wide">
+      <h2>최근 실행 로그</h2>
+      <pre id="logs"></pre>
+    </div>
+    <div class="panel wide" id="completion" hidden>
+      <h2>최종 비교 결과</h2>
+      <p>
+        <a href="/files/reports/LOCAL_TRAINING_RESULTS.md">완료 보고서</a> ·
+        <a href="/files/reports/experiment-comparison.json">정량 결과 JSON</a>
+      </p>
+      <img
+        id="comparison-img"
+        style="max-width: 100%"
+        alt="두 모델의 실제 held-out 평가 비교"
+      />
+    </div>
+    <p class="muted">
+      이 PC 전용 · 5초마다 갱신 · 브라우저를 닫아도 학습은 계속됩니다. 외부
+      서비스로 학습 데이터를 보내지 않습니다.
+    </p>
+  </main>
+  <script>
+    const $ = (x) => document.getElementById(x),
+      stages = [
+        ["environment", "환경"],
+        ["data", "데이터"],
+        ["gt", "최종 정답"],
+        ["qa", "투영 검수"],
+        ["model", "모델 연결"],
+        ["tune", "메모리 검사"],
+        ["pilot", "짧은 학습"],
+        ["camera", "영상 모델 학습"],
+        ["fusion", "결합 모델 학습"],
+        ["export", "SHP 변환·검증"],
+        ["evaluation", "결과 비교"],
+        ["done", "완료"],
+      ];
+    let allRuns = [],
+      data = [],
+      selected = "",
+      following = true;
+    const stateName = (x) =>
+      ({
+        running: "실행 중",
+        validating: "검증 중",
+        completed: "완료",
+        failed: "실패",
+        interrupted: "중단",
+      }[x] ?? x);
+    function chart(id, series) {
+      let s = $(id),
+        valid = series.filter((a) => a.pts.length);
+      s.replaceChildren();
+      if (!valid.length) {
+        s.innerHTML =
+          '<text x="300" y="125" text-anchor="middle" fill="#8394a0" font-size="13">아직 측정값이 없습니다</text>';
+        return;
+      }
+      let points = valid.flatMap((a) => a.pts),
+        xs = points.map((a) => a[0]),
+        ys = points.map((a) => a[1]),
+        xmin = Math.min(...xs),
+        xmax = Math.max(...xs),
+        ymin = Math.min(...ys),
+        ymax = Math.max(...ys);
+      if (xmin === xmax) xmax++;
+      if (ymin === ymax) ymax = ymin + 1;
+      let pad = (ymax - ymin) * 0.08;
+      ymax += pad;
+      ymin = ymin >= 0 ? Math.max(0, ymin - pad) : ymin - pad;
+      const X = (x) => 52 + ((x - xmin) / (xmax - xmin)) * 530,
+        Y = (y) => 226 - ((y - ymin) / (ymax - ymin)) * 205;
+      for (let i = 0; i < 5; i++) {
+        let y = ymin + ((ymax - ymin) * i) / 4;
+        s.innerHTML += `<line x1="52" x2="582" y1="${Y(y)}" y2="${Y(
+          y
+        )}" stroke="#e9eef2"/><text x="45" y="${
+          Y(y) + 4
+        }" text-anchor="end" fill="#8797a4" font-size="10">${y.toFixed(
+          2
+        )}</text>`;
+      }
+      s.innerHTML += `<text x="52" y="250" fill="#8797a4" font-size="10">${xmin.toFixed(
+        0
+      )}</text><text x="582" y="250" text-anchor="end" fill="#8797a4" font-size="10">${xmax.toFixed(
+        0
+      )}</text>`;
+      for (const a of valid) {
+        let poly = a.pts.map((p) => `${X(p[0])},${Y(p[1])}`).join(" ");
+        s.innerHTML += `<polyline points="${poly}" fill="none" stroke="${a.color}" stroke-width="1.6"/>`;
+        if (a.pts.length < 30)
+          for (const p of a.pts)
+            s.innerHTML += `<circle cx="${X(p[0])}" cy="${Y(
+              p[1]
+            )}" r="2" fill="${a.color}"/>`;
+      }
+    }
+    function plots() {
+      let key = $("component").value,
+        get = (r) => (key === "total" ? r.total : r.losses?.[key]),
+        steps = data.filter(
+          (r) => r.kind === "step" && Number.isFinite(get(r))
+        ),
+        epochs = data.filter((r) => r.kind === "epoch"),
+        series = [
+          { color: "#377ec0", pts: steps.map((r) => [r.step, get(r)]) },
+        ];
+      if ($("smooth").checked) {
+        let e;
+        series.push({
+          color: "#d98923",
+          pts: steps.map((r) => {
+            e = e === undefined ? get(r) : 0.9 * e + 0.1 * get(r);
+            return [r.step, e];
+          }),
+        });
+      }
+      chart("train", series);
+      chart("validation", [
+        {
+          color: "#377ec0",
+          pts: epochs
+            .filter((r) =>
+              Number.isFinite(
+                key === "total" ? r.train_total : r.train_losses?.[key]
+              )
+            )
+            .map((r) => [
+              r.epoch,
+              key === "total" ? r.train_total : r.train_losses[key],
+            ]),
+        },
+        {
+          color: "#d98923",
+          pts: epochs
+            .filter((r) =>
+              Number.isFinite(
+                key === "total" ? r.val_total : r.val_losses?.[key]
+              )
+            )
+            .map((r) => [
+              r.epoch,
+              key === "total" ? r.val_total : r.val_losses[key],
+            ]),
+        },
+      ]);
+      let run = allRuns.find((r) => r.id === selected),
+        last = steps.at(-1),
+        ep = epochs.at(-1);
+      $("epoch").textContent =
+        run?.kind === "pilot"
+          ? `${run?.step ?? 0} / 100 steps`
+          : `${run?.epoch ?? 0} / ${run?.settings?.epochs ?? 24}`;
+      $("progress").style.width = `${
+        run?.kind === "pilot"
+          ? run?.step ?? 0
+          : ((run?.epoch ?? 0) / (run?.settings?.epochs || 24)) * 100
+      }%`;
+      $("step").textContent = last
+        ? `step ${last.step} · ${(last.seconds ?? 0).toFixed(1)} 초/step`
+        : "지표 대기 중";
+      $("loss").textContent = last ? last.total.toFixed(4) : "—";
+      $("val").textContent = ep
+        ? `검증 ${ep.val_total.toFixed(4)} · epoch ${ep.epoch} · best epoch ${
+            run?.best_epoch ?? "—"
+          } (${Number.isFinite(run?.best_val) ? run.best_val.toFixed(4) : "—"})`
+        : "검증값 없음";
+      let eta = "";
+      if (
+        run?.kind === "training" &&
+        ["running", "validating"].includes(run?.status) &&
+        steps.length >= 5
+      ) {
+        let left = Math.max(
+          0,
+          Math.ceil((run.settings?.train_frames ?? 0) / 4) *
+            (run.settings?.epochs ?? 24) -
+            (run.step ?? 0)
+        );
+        let secs =
+          (steps.slice(-20).reduce((s, r) => s + (r.seconds ?? 0), 0) /
+            Math.min(20, steps.length)) *
+          left;
+        if (epochs.length) {
+          let ep = epochs.at(-1);
+          let wall =
+            ep.time && run.started_at
+              ? Math.max(
+                  0,
+                  (Date.parse(ep.time) - Date.parse(run.started_at)) / 1000
+                )
+              : ep.seconds;
+          secs =
+            (wall / ep.epoch) *
+            Math.max(0, (run.settings?.epochs ?? 24) - ep.epoch);
+        }
+        eta =
+          " · 예상 " +
+          Math.floor(secs / 3600) +
+          "시간 " +
+          Math.ceil((secs % 3600) / 60) +
+          "분 남음";
+      }
+      $("runinfo").textContent = run
+        ? `${run.id} · ${stateName(run.status)} · ${run.modality ?? ""}${eta}`
+        : "지표 대기 중";
+      $("settings").textContent = JSON.stringify(
+        {
+          ...run?.settings,
+          run_note: run?.stop_reason ?? run?.error ?? null,
+          current_learning_rate: last?.lr ?? null,
+          elapsed_since_start_seconds: run?.started_at
+            ? Math.max(
+                0,
+                ((run.completed_at
+                  ? Date.parse(run.completed_at)
+                  : ["interrupted", "failed"].includes(run.status)
+                  ? Date.parse(run.time ?? run.updated_at)
+                  : Date.now()) -
+                  Date.parse(run.started_at)) /
+                  1000
+              )
+            : null,
+        },
+        null,
+        2
+      );
+      let downloads = document.getElementById("local-downloads");
+      if (!downloads) {
+        downloads = document.createElement("div");
+        downloads.id = "local-downloads";
+        $("settings").after(downloads);
+      }
+      downloads.replaceChildren();
+      if (run?.exports?.zip) {
+        let a = document.createElement("a");
+        a.href = "/files/" + run.exports.zip;
+        a.textContent = "QGIS SHP ZIP 다운로드";
+        downloads.append(a);
+      }
+      let pics = run?.previews ?? [];
+      if (pics.length) {
+        $("preview").replaceChildren();
+        for (const p of pics) {
+          let img = document.createElement("img");
+          img.src = "/files/" + p + "?t=" + Date.now();
+          let caption = p.includes("qgis-export")
+            ? `Best epoch ${run?.best_epoch ?? "—"} · ${
+                run?.settings?.epochs === 1 ? "validation 시연" : "별도 test"
+              } 추론 및 지도 좌표 결과`
+            : p.endsWith("loss.png")
+            ? "학습 / validation loss 곡선"
+            : "학습 과정의 최근 epoch 예측 (best 추론 결과와 구분)";
+          img.alt = caption;
+          let figure = document.createElement("figure");
+          figure.style.margin = "0";
+          let label = document.createElement("figcaption");
+          label.textContent = caption;
+          label.className = "muted";
+          figure.append(img, label);
+          $("preview").append(figure);
+        }
+      }
+    }
+    async function refresh() {
+      try {
+        let [status, runs] = await Promise.all([
+          fetch("/api/status").then((r) => r.json()),
+          fetch("/api/runs").then((r) => r.json()),
+        ]);
+        allRuns = runs;
+        $("state").textContent =
+          status.status === "completed"
+            ? status.phase === "done"
+              ? "전체 완료"
+              : "단계 완료"
+            : stateName(status.status) ?? "준비 중";
+        $("state").className =
+          "pill " +
+          (["failed", "blocked"].includes(status.status) ? "error" : "");
+        $("phase").textContent =
+          stages.find((s) => s[0] === status.phase)?.[1] ??
+          status.phase ??
+          "준비";
+        $("message").textContent = status.message ?? "";
+        $("updated").textContent =
+          "최근 기록 " +
+          (status.updated_at
+            ? new Date(status.updated_at).toLocaleString("ko-KR", {
+                timeZone: "Asia/Seoul",
+              })
+            : "—");
+        $("stages").replaceChildren();
+        for (const [id, name] of stages) {
+          let d = document.createElement("span");
+          d.className =
+            "stage " +
+            (status.phase === id
+              ? "active"
+              : (
+                  ["camera", "fusion"].includes(id)
+                    ? runs.some(
+                        (r) =>
+                          r.modality === id &&
+                          r.settings?.epochs === 24 &&
+                          r.status === "completed"
+                      )
+                    : id === "evaluation"
+                    ? Boolean(status.comparison)
+                    : (status.completed_phases ?? []).includes(id)
+                )
+              ? "done"
+              : "");
+          d.textContent = name;
+          $("stages").append(d);
+        }
+        if (status.gpu) {
+          $("memory").textContent =
+            (status.gpu.used_mib / 1024).toFixed(1) +
+            " / " +
+            (status.gpu.total_mib / 1024).toFixed(0) +
+            " GB";
+          $("gpu").textContent =
+            status.gpu.name + " · 사용률 " + status.gpu.utilization + "%";
+        }
+        $("logs").textContent = (status.log_tail ?? []).join("\n");
+        $("run").replaceChildren();
+        for (const r of runs) {
+          let o = document.createElement("option");
+          o.value = r.id;
+          o.textContent = r.id;
+          $("run").append(o);
+        }
+        if (following || !runs.some((r) => r.id === selected))
+          selected = status.current_run ?? runs.at(-1)?.id ?? "";
+        $("run").value = selected;
+        $("runs").replaceChildren();
+        for (const r of runs) {
+          let tr = document.createElement("tr");
+          for (const v of [
+            r.id,
+            stateName(r.status),
+            r.kind === "pilot" ? `${r.step ?? 0}/100 step` : r.epoch ?? 0,
+            Number.isFinite(r.best_val) ? r.best_val.toFixed(4) : "—",
+          ]) {
+            let td = document.createElement("td");
+            td.textContent = v;
+            tr.append(td);
+          }
+          $("runs").append(tr);
+        }
+        data = selected
+          ? await fetch("/api/runs/" + selected + "/metrics").then((r) =>
+              r.json()
+            )
+          : [];
+        let key = $("component").value,
+          keys = [
+            ...new Set(
+              data.flatMap((r) => Object.keys(r.losses ?? r.train_losses ?? {}))
+            ),
+          ].sort();
+        $("component").replaceChildren();
+        for (const k of ["total", ...keys]) {
+          let o = document.createElement("option");
+          o.value = k;
+          o.textContent = k === "total" ? "Total loss" : k;
+          $("component").append(o);
+        }
+        $("component").value = ["total", ...keys].includes(key) ? key : "total";
+        plots();
+        if (status.phase === "done" && status.status === "completed") {
+          $("completion").hidden = false;
+          $("comparison-img").src = "/files/reports/comparison.png";
+          let shared = document.getElementById("shared-zip");
+          if (status.share_zip && !shared) {
+            shared = document.createElement("a");
+            shared.id = "shared-zip";
+            shared.href = "/files/" + status.share_zip;
+            shared.textContent = "두 모델 QGIS SHP 공유 ZIP 다운로드";
+            $("completion").append(shared);
+          }
+        }
+      } catch (e) {
+        $("state").textContent = "연결 재시도 중";
+        $("message").textContent = String(e);
+      }
+    }
+    $("run").onchange = () => {
+      selected = $("run").value;
+      following = false;
+      refresh();
+    };
+    $("component").onchange = plots;
+    $("smooth").onchange = plots;
+    refresh();
+    setInterval(refresh, 5000);
+  </script>
+</html>

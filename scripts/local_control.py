@@ -2,7 +2,7 @@
 import argparse,fcntl,json,os,subprocess,time,hashlib,shutil,signal
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
-S=Path('/mnt/d/mms_experiments/gg49-lanesegnet-lab_sj')
+S=Path('/mnt/d/mms_experiments/gg49-lanesegnet-lab_gs')
 def alive(pid,key=None):
  try:
   text=Path(f'/proc/{pid}/cmdline').read_bytes().replace(b'\0',b' ').decode()

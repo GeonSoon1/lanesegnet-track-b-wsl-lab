@@ -1,17 +1,277 @@
-<!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>GG49 · Track B 진단</title><link rel="stylesheet" href="/assets/diagnostics.css"></head>
-<body><main><header><div><p class="eyebrow">GG49 / LANESEGNET LAB · SJ</p><h1>Track B 진단실</h1><p class="subtitle">실패 사례 시각화 · LiDAR 기여도 검사 · 검출 기준 분석</p></div><nav><a href="/experiments">실험4·5 / 팀 설명</a><a href="/">학습 기록 보기</a><a href="#failures">실패 사례</a><a href="#lidar">LiDAR 비교</a><a href="#threshold">검출 기준</a></nav></header>
-<section class="statusline" aria-live="polite"><span class="badge" id="status">결과 연결 중</span><span id="progress">실제 진단 상태를 읽고 있습니다.</span></section>
-<div class="notice">고정된 <strong>validation 47개 시점</strong> · 기존 best(epoch 6) 모델 · 원본과 학습 가중치 보존 · test 데이터는 이번 진단에 사용하지 않습니다.</div>
-<div id="error" class="error" hidden></div>
-<div class="rollup"><article><span>정상 LiDAR · F1@1m</span><strong id="normal-f1">—</strong><small>confidence 0.50 · validation</small></article><article><span>LiDAR 0 입력 · F1@1m</span><strong id="zero-f1">—</strong><small>같은 fusion 모델의 입력 제거</small></article><article><span>다른 시점 LiDAR · F1@1m</span><strong id="shuffle-f1">—</strong><small>validation 내부 고정 교체 · 자기 자신 제외</small></article><article><span>관측된 LiDAR 셀 비율</span><strong id="coverage">—</strong><small>프레임 평균 · BEV 20,000셀 중</small></article></div>
-<section id="failures" class="panel"><div class="sectionhead"><div><p class="eyebrow">01 / 실패 사례 시각화</p><h2>같은 장면, 정답과 두 예측</h2></div><div class="controls"><label for="case">시점 선택</label><select id="case" disabled><option>결과 생성 대기</option></select><button id="previous" type="button" aria-label="이전 시점">←</button><button id="next" type="button" aria-label="다음 시점">→</button></div></div>
-<p class="hint">사례 이미지는 confidence 0.50 고정입니다. 굵은 선은 중심선, 가는 선은 좌우 경계, 원 표시는 GT 구간의 시작·끝입니다. 추천 사례는 누락·오탐과 LiDAR 민감도 기준으로 선택했습니다.</p>
-<div class="legend"><span class="gt">정답 SHP</span><span class="camera">영상 전용</span><span class="fusion">RGB+LiDAR</span></div>
-<p class="finding">점수 해석: 기존 지표는 정답과 예측의 선 분절·길이·방향 차이에도 민감합니다. 아래의 <strong>길이 근접도</strong>는 1m 안에 가까운 선이 있는 길이 비율을 따로 보여줍니다. 이는 방향·1:1 대응·연결 관계를 평가하지 않습니다.</p><div id="case-stats" class="case-stats">진단이 완료되면 시점별 TP·FP·FN이 표시됩니다.</div>
-<a id="bev-link" target="_blank" rel="noopener" class="image-link"><img id="bev" class="wide-image" alt="같은 ego 좌표에서 정답과 영상/결합 예측 비교" hidden></a>
-<div class="camera-layout"><div><div class="controls"><label for="camera">카메라</label><select id="camera"><option value="1">CAM01</option><option value="2">CAM02</option><option value="3">CAM03</option><option value="4">CAM04</option><option value="5">CAM05</option><option value="6">CAM06</option></select><label><input type="checkbox" id="show-gt" checked> 정답</label><label><input type="checkbox" id="show-camera" checked> 영상 예측</label><label><input type="checkbox" id="show-fusion" checked> 결합 예측</label><label><input type="checkbox" id="show-bounds"> 좌우 경계</label><label><input type="checkbox" id="show-lidar"> LiDAR 셀</label></div><canvas id="camera-canvas" width="384" height="384" aria-label="선택한 카메라 영상에 정답과 모델 예측을 투영한 이미지"></canvas><p class="hint">학습에 사용한 보정 영상 384×384. LiDAR 표시는 원시 점군이 아닌 관측 셀 중심·최저 높이의 근사 투영이며 정밀 보정 인증이 아닙니다.</p></div><div><h3>현재 시점의 입력과 결과</h3><dl id="case-details"></dl><p class="hint">TP: 정답과 1m 이내 대응 · FP: 대응하지 못한 예측 · FN: 찾지 못한 정답. 프레임별 합계로, 지도 전체의 고유 차선 수와 다릅니다.</p><a id="cameras-link" target="_blank" rel="noopener">카메라 6대 전체 이미지 크게 보기 ↗</a><p id="projection-count" class="hint"></p></div></div>
-<details><summary>카메라 6대 전체 이미지 펼치기</summary><img id="cameras" class="wide-image" alt="카메라 6대의 정답과 두 모델 예측 투영" loading="lazy"></details></section>
-<section id="lidar" class="panel"><div class="sectionhead"><div><p class="eyebrow">02 / LiDAR 기여도 검사</p><h2>같은 결합 모델에서 입력만 바꾸면</h2></div></div><p class="hint">학습된 fusion best 모델은 고정하고 LiDAR만 정상·전체 0·다른 validation 시점으로 바꿉니다. 입력 의존성 진단이며 새 모델의 재학습 효과를 비교하는 실험은 아닙니다.</p><div class="table-wrap"><table><thead><tr><th>조건 (confidence 0.50)</th><th>TP / FP / FN</th><th>Precision</th><th>Recall</th><th>F1@1m</th></tr></thead><tbody id="ablation-table"></tbody></table></div><p id="global-proximity" class="finding"></p><p id="sensitivity" class="finding">실제 query별 변화량을 측정 중입니다.</p><a id="ablation-link" target="_blank" rel="noopener" class="image-link"><img id="ablation" class="wide-image" alt="선택한 시점에서 정상·0·교체 LiDAR 예측 비교" hidden></a><details><summary>전체 validation의 LiDAR 기여도 그래프</summary><img id="ablation-chart" class="wide-image" alt="validation F1 및 동일 query 중심선 변화량" loading="lazy"></details></section>
-<section id="threshold" class="panel"><div class="sectionhead"><div><p class="eyebrow">03 / 검출 기준 분석</p><h2>낮은 점수 때문에 놓친 선인가</h2></div><a id="csv-link">CSV 다운로드</a></div><div class="controls"><label for="tolerance">허용 평균 3D 거리</label><select id="tolerance"><option value="0.5m">0.5 m</option><option value="1.0m" selected>1 m</option><option value="2.0m">2 m (진단용)</option></select><label for="confidence">confidence</label><input type="range" id="confidence" min="0" max="12" value="7" step="1"><output id="confidence-value">0.50</output></div><p class="hint">아래 조절기는 검출 기준 분석 표와 그래프에 적용됩니다. 위 사례 이미지의 confidence는 0.50입니다. threshold 선택 결과는 같은 validation에서의 탐색값이며 독립 test 성능으로 해석하지 않습니다.</p><div class="plot-pair"><div><h3>Confidence별 F1</h3><svg id="f1-chart" viewBox="0 0 600 280" role="img" aria-label="confidence에 따른 validation F1"></svg></div><div><h3>Precision / Recall</h3><svg id="pr-chart" viewBox="0 0 600 280" role="img" aria-label="confidence에 따른 precision recall 곡선"></svg></div></div><div class="table-wrap"><table><thead><tr><th>조건</th><th>예측 수</th><th>TP / FP / FN</th><th>Precision</th><th>Recall</th><th>F1</th></tr></thead><tbody id="threshold-table"></tbody></table></div><p id="best-threshold" class="finding"></p></section>
-<footer><p>현재 지표는 로컬 GG49의 순서가 있는 중심선 10개 표본의 평균 XYZ 거리 기준입니다. 공식 OpenLane-V2 점수가 아닙니다. 기존 학습 결과와 분리해 D드라이브에 저장합니다.</p><p><a id="json-link">진단 결과 JSON</a> · <a id="report-link">진단 보고서</a> · <a href="/files/reports/TRAINING_RESULTS.md">첫 학습 보고서</a></p><p id="provenance" class="mono"></p></footer></main><script src="/assets/diagnostics.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GG49 · Track B 진단</title>
+    <link rel="stylesheet" href="/assets/diagnostics.css" />
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <p class="eyebrow">GG49 / LANESEGNET LAB · gs</p>
+          <h1>Track B 진단실</h1>
+          <p class="subtitle">
+            실패 사례 시각화 · LiDAR 기여도 검사 · 검출 기준 분석
+          </p>
+        </div>
+        <nav>
+          <a href="/experiments">실험4·5 / 팀 설명</a
+          ><a href="/">학습 기록 보기</a><a href="#failures">실패 사례</a
+          ><a href="#lidar">LiDAR 비교</a><a href="#threshold">검출 기준</a>
+        </nav>
+      </header>
+      <section class="statusline" aria-live="polite">
+        <span class="badge" id="status">결과 연결 중</span
+        ><span id="progress">실제 진단 상태를 읽고 있습니다.</span>
+      </section>
+      <div class="notice">
+        고정된 <strong>validation 47개 시점</strong> · 기존 best(epoch 6) 모델 ·
+        원본과 학습 가중치 보존 · test 데이터는 이번 진단에 사용하지 않습니다.
+      </div>
+      <div id="error" class="error" hidden></div>
+      <div class="rollup">
+        <article>
+          <span>정상 LiDAR · F1@1m</span><strong id="normal-f1">—</strong
+          ><small>confidence 0.50 · validation</small>
+        </article>
+        <article>
+          <span>LiDAR 0 입력 · F1@1m</span><strong id="zero-f1">—</strong
+          ><small>같은 fusion 모델의 입력 제거</small>
+        </article>
+        <article>
+          <span>다른 시점 LiDAR · F1@1m</span><strong id="shuffle-f1">—</strong
+          ><small>validation 내부 고정 교체 · 자기 자신 제외</small>
+        </article>
+        <article>
+          <span>관측된 LiDAR 셀 비율</span><strong id="coverage">—</strong
+          ><small>프레임 평균 · BEV 20,000셀 중</small>
+        </article>
+      </div>
+      <section id="failures" class="panel">
+        <div class="sectionhead">
+          <div>
+            <p class="eyebrow">01 / 실패 사례 시각화</p>
+            <h2>같은 장면, 정답과 두 예측</h2>
+          </div>
+          <div class="controls">
+            <label for="case">시점 선택</label
+            ><select id="case" disabled>
+              <option>결과 생성 대기</option></select
+            ><button id="previous" type="button" aria-label="이전 시점">
+              ←</button
+            ><button id="next" type="button" aria-label="다음 시점">→</button>
+          </div>
+        </div>
+        <p class="hint">
+          사례 이미지는 confidence 0.50 고정입니다. 굵은 선은 중심선, 가는 선은
+          좌우 경계, 원 표시는 GT 구간의 시작·끝입니다. 추천 사례는 누락·오탐과
+          LiDAR 민감도 기준으로 선택했습니다.
+        </p>
+        <div class="legend">
+          <span class="gt">정답 SHP</span><span class="camera">영상 전용</span
+          ><span class="fusion">RGB+LiDAR</span>
+        </div>
+        <p class="finding">
+          점수 해석: 기존 지표는 정답과 예측의 선 분절·길이·방향 차이에도
+          민감합니다. 아래의 <strong>길이 근접도</strong>는 1m 안에 가까운 선이
+          있는 길이 비율을 따로 보여줍니다. 이는 방향·1:1 대응·연결 관계를
+          평가하지 않습니다.
+        </p>
+        <div id="case-stats" class="case-stats">
+          진단이 완료되면 시점별 TP·FP·FN이 표시됩니다.
+        </div>
+        <a id="bev-link" target="_blank" rel="noopener" class="image-link"
+          ><img
+            id="bev"
+            class="wide-image"
+            alt="같은 ego 좌표에서 정답과 영상/결합 예측 비교"
+            hidden
+        /></a>
+        <div class="camera-layout">
+          <div>
+            <div class="controls">
+              <label for="camera">카메라</label
+              ><select id="camera">
+                <option value="1">CAM01</option>
+                <option value="2">CAM02</option>
+                <option value="3">CAM03</option>
+                <option value="4">CAM04</option>
+                <option value="5">CAM05</option>
+                <option value="6">CAM06</option></select
+              ><label><input type="checkbox" id="show-gt" checked /> 정답</label
+              ><label
+                ><input type="checkbox" id="show-camera" checked /> 영상
+                예측</label
+              ><label
+                ><input type="checkbox" id="show-fusion" checked /> 결합
+                예측</label
+              ><label
+                ><input type="checkbox" id="show-bounds" /> 좌우 경계</label
+              ><label><input type="checkbox" id="show-lidar" /> LiDAR 셀</label>
+            </div>
+            <canvas
+              id="camera-canvas"
+              width="384"
+              height="384"
+              aria-label="선택한 카메라 영상에 정답과 모델 예측을 투영한 이미지"
+            ></canvas>
+            <p class="hint">
+              학습에 사용한 보정 영상 384×384. LiDAR 표시는 원시 점군이 아닌
+              관측 셀 중심·최저 높이의 근사 투영이며 정밀 보정 인증이 아닙니다.
+            </p>
+          </div>
+          <div>
+            <h3>현재 시점의 입력과 결과</h3>
+            <dl id="case-details"></dl>
+            <p class="hint">
+              TP: 정답과 1m 이내 대응 · FP: 대응하지 못한 예측 · FN: 찾지 못한
+              정답. 프레임별 합계로, 지도 전체의 고유 차선 수와 다릅니다.
+            </p>
+            <a id="cameras-link" target="_blank" rel="noopener"
+              >카메라 6대 전체 이미지 크게 보기 ↗</a
+            >
+            <p id="projection-count" class="hint"></p>
+          </div>
+        </div>
+        <details>
+          <summary>카메라 6대 전체 이미지 펼치기</summary>
+          <img
+            id="cameras"
+            class="wide-image"
+            alt="카메라 6대의 정답과 두 모델 예측 투영"
+            loading="lazy"
+          />
+        </details>
+      </section>
+      <section id="lidar" class="panel">
+        <div class="sectionhead">
+          <div>
+            <p class="eyebrow">02 / LiDAR 기여도 검사</p>
+            <h2>같은 결합 모델에서 입력만 바꾸면</h2>
+          </div>
+        </div>
+        <p class="hint">
+          학습된 fusion best 모델은 고정하고 LiDAR만 정상·전체 0·다른 validation
+          시점으로 바꿉니다. 입력 의존성 진단이며 새 모델의 재학습 효과를
+          비교하는 실험은 아닙니다.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>조건 (confidence 0.50)</th>
+                <th>TP / FP / FN</th>
+                <th>Precision</th>
+                <th>Recall</th>
+                <th>F1@1m</th>
+              </tr>
+            </thead>
+            <tbody id="ablation-table"></tbody>
+          </table>
+        </div>
+        <p id="global-proximity" class="finding"></p>
+        <p id="sensitivity" class="finding">
+          실제 query별 변화량을 측정 중입니다.
+        </p>
+        <a id="ablation-link" target="_blank" rel="noopener" class="image-link"
+          ><img
+            id="ablation"
+            class="wide-image"
+            alt="선택한 시점에서 정상·0·교체 LiDAR 예측 비교"
+            hidden
+        /></a>
+        <details>
+          <summary>전체 validation의 LiDAR 기여도 그래프</summary>
+          <img
+            id="ablation-chart"
+            class="wide-image"
+            alt="validation F1 및 동일 query 중심선 변화량"
+            loading="lazy"
+          />
+        </details>
+      </section>
+      <section id="threshold" class="panel">
+        <div class="sectionhead">
+          <div>
+            <p class="eyebrow">03 / 검출 기준 분석</p>
+            <h2>낮은 점수 때문에 놓친 선인가</h2>
+          </div>
+          <a id="csv-link">CSV 다운로드</a>
+        </div>
+        <div class="controls">
+          <label for="tolerance">허용 평균 3D 거리</label
+          ><select id="tolerance">
+            <option value="0.5m">0.5 m</option>
+            <option value="1.0m" selected>1 m</option>
+            <option value="2.0m">2 m (진단용)</option></select
+          ><label for="confidence">confidence</label
+          ><input
+            type="range"
+            id="confidence"
+            min="0"
+            max="12"
+            value="7"
+            step="1"
+          /><output id="confidence-value">0.50</output>
+        </div>
+        <p class="hint">
+          아래 조절기는 검출 기준 분석 표와 그래프에 적용됩니다. 위 사례
+          이미지의 confidence는 0.50입니다. threshold 선택 결과는 같은
+          validation에서의 탐색값이며 독립 test 성능으로 해석하지 않습니다.
+        </p>
+        <div class="plot-pair">
+          <div>
+            <h3>Confidence별 F1</h3>
+            <svg
+              id="f1-chart"
+              viewBox="0 0 600 280"
+              role="img"
+              aria-label="confidence에 따른 validation F1"
+            ></svg>
+          </div>
+          <div>
+            <h3>Precision / Recall</h3>
+            <svg
+              id="pr-chart"
+              viewBox="0 0 600 280"
+              role="img"
+              aria-label="confidence에 따른 precision recall 곡선"
+            ></svg>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>조건</th>
+                <th>예측 수</th>
+                <th>TP / FP / FN</th>
+                <th>Precision</th>
+                <th>Recall</th>
+                <th>F1</th>
+              </tr>
+            </thead>
+            <tbody id="threshold-table"></tbody>
+          </table>
+        </div>
+        <p id="best-threshold" class="finding"></p>
+      </section>
+      <footer>
+        <p>
+          현재 지표는 로컬 GG49의 순서가 있는 중심선 10개 표본의 평균 XYZ 거리
+          기준입니다. 공식 OpenLane-V2 점수가 아닙니다. 기존 학습 결과와 분리해
+          D드라이브에 저장합니다.
+        </p>
+        <p>
+          <a id="json-link">진단 결과 JSON</a> ·
+          <a id="report-link">진단 보고서</a> ·
+          <a href="/files/reports/TRAINING_RESULTS.md">첫 학습 보고서</a>
+        </p>
+        <p id="provenance" class="mono"></p>
+      </footer>
+    </main>
+    <script src="/assets/diagnostics.js"></script>
+  </body>
+</html>
