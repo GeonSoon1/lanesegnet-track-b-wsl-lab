@@ -1,0 +1,30 @@
+{
+  "camera": {
+    "use_camera": true,
+    "use_lidar": false,
+    "camera_order": [
+      "01",
+      "02",
+      "03",
+      "04",
+      "05",
+      "06"
+    ],
+    "role": "comparison baseline"
+  },
+  "fusion": {
+    "use_camera": true,
+    "use_lidar": true,
+    "camera_order": [
+      "01",
+      "02",
+      "03",
+      "04",
+      "05",
+      "06"
+    ],
+    "lidar_encoder": "LiDARFusion:5->64->64->256 residual BEV",
+    "lidar_half_window_seconds": 0.1,
+    "role": "target multimodal model"
+  }
+}

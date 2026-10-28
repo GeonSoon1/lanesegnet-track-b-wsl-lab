@@ -1,0 +1,11 @@
+{
+  "project_root": "/home/rjstns23/gg49-lanesegnet-lab_sj",
+  "storage_root": "/mnt/d/mms_experiments/gg49-lanesegnet-lab_sj",
+  "storage_root_windows": "D:/mms_experiments/gg49-lanesegnet-lab_sj",
+  "raw_root": "/mnt/d/2026-APR-01_GG803SEC012",
+  "shp_root": "/mnt/d/mms_experiments/gg49-lanesegnet-lab_sj/data/shp/통합SHP",
+  "original_data_read_only": true,
+  "environment": "/home/rjstns23/gg49-lanesegnet-lab_sj/.venv-mms",
+  "dashboard": "http://127.0.0.1:8765",
+  "run_prefix": "sj-20261028-v2-"
+}

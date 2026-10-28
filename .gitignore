@@ -1,0 +1,38 @@
+# Local environments and Python build/test caches
+.venv*/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+# SSD-backed directories (including their local symlinks)
+/data
+/artifacts
+/checkpoints
+/runs
+/logs
+/reports
+/cache
+/exports
+/environment_backup
+/work_dirs
+# Model weights and large/generated data
+*.pth
+*.pt
+*.ckpt
+*.las
+*.laz
+*.npz
+*.npy
+*.zip
+*.tar
+*.gpkg
+*.shp
+*.shx
+*.dbf
+# Credentials and machine secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+.venv-mms/

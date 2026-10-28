@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "purpose": "Local planning and preflight configuration; NOT a runnable LaneSegNet model config",
+  "created_date_kst": "2026-10-24",
+  "workspace": "/home/imella0707/personal/mms_project/gg49-lanesegnet-lab_sj",
+  "sources": {
+    "gt_builder": "/home/imella0707/personal/mms_project/gg49-lanesegnet-gt-builder",
+    "gt_builder_commit": "6b3671c29a66aebd6e6246dc31a5946dbcb0958f",
+    "model_source": "/home/imella0707/personal/mms_project/LaneSegNet",
+    "model_commit": "9f12fe72a95dd991b3ec0a01cfbae5f3e9e961e0",
+    "raw_root_windows": "D:/2026-APR-01_GG803SEC012",
+    "shp_root_windows": "D:/SHP데이터/통합SHP",
+    "wsl_raw_access": "D: mounted; original paths read-only in application",
+    "raw_root_linux": "/mnt/d/2026-APR-01_GG803SEC012",
+    "shp_root_linux": "/mnt/d/SHP데이터/통합SHP"
+  },
+  "track": "B",
+  "checkpoint": {
+    "path": "/mnt/d/mms_experiments/gg49-lanesegnet-lab_sj/checkpoints/lanesegnet_r50_8x1_24e_olv2_subset_A.pth",
+    "bytes": 182203523,
+    "sha256": "9a31e3b0890ff6d9b6128fb6b470a2cb5850789103e2c309e46d6c443b460cda",
+    "official_sha256_match": true,
+    "official_file_url": "https://huggingface.co/OpenDriveLab/lanesegnet_r50_8x1_24e_olv2_subset_A/blob/main/lanesegnet_r50_8x1_24e_olv2_subset_A.pth"
+  },
+  "gt": {
+    "shp_encoding": "cp949",
+    "crs_epsg": 32652,
+    "smoke_run": "track-b-smoke12",
+    "smoke_frames": 12,
+    "geometry_eligible_frames": 10,
+    "lane_instances": 28,
+    "geometry_only": true,
+    "semantic_codebook_verified_for_local_input": false
+  },
+  "baseline_proposal": {
+    "role": "camera comparison experiment",
+    "target": "timestamp-local RGB+LiDAR residual fusion",
+    "resolution": 384,
+    "micro_batch": 2,
+    "gradient_accumulation": 2,
+    "effective_batch": 4,
+    "global_lr": 2e-05,
+    "backbone_lr": 2e-06,
+    "epochs_per_model": 24,
+    "seed": 42,
+    "split_counts": {
+      "train": 191,
+      "val": 47,
+      "test": 57,
+      "buffer": 46,
+      "unlabelled": 12
+    }
+  },
+  "training_ready": true,
+  "training_started": true,
+  "next_phase": "pilot -> camera24 -> fusion24 -> evaluation",
+  "blocked_training_requirements": [],
+  "training_target": {
+    "experiments": [
+      "camera",
+      "fusion"
+    ],
+    "epochs": 24,
+    "environment": "mms",
+    "seed": 42,
+    "effective_batch_size": 4,
+    "lidar_half_window_seconds": 0.1,
+    "dashboard": "http://127.0.0.1:8765"
+  },
+  "storage": {
+    "project_root": "/home/imella0707/personal/mms_project/gg49-lanesegnet-lab_sj",
+    "storage_root": "/mnt/d/mms_experiments/gg49-lanesegnet-lab_sj",
+    "storage_root_windows": "D:/mms_experiments/gg49-lanesegnet-lab_sj",
+    "raw_root": "/mnt/d/2026-APR-01_GG803SEC012",
+    "shp_root": "/mnt/d/SHP데이터/통합SHP",
+    "original_data_read_only": true,
+    "environment": "/home/imella0707/miniconda3/envs/mms",
+    "dashboard": "http://127.0.0.1:8765"
+  }
+}

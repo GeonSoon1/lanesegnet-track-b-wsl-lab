@@ -1,0 +1,59 @@
+{
+  "verified": true,
+  "line_types_verified_against_published_code_list": true,
+  "source": "https://www.ngii.go.kr/other/file_down.do?sq=126703",
+  "source_title": "NGII HD map construction manual, revised 2025-12",
+  "source_pdf_page": 20,
+  "source_pdf_sha256": "e5714ea418b622e4d2e2324980c66f74b43d04c3d6f5e6f0a490f343934fdcd2",
+  "line_type_codes": {
+    "111": "solid",
+    "112": "dashed",
+    "121": "solid",
+    "122": "dashed",
+    "211": "solid",
+    "212": "dashed",
+    "223": "unknown",
+    "224": "unknown",
+    "999": "unknown"
+  },
+  "direction_codes": {
+    "1": "forward",
+    "2": "forward",
+    "3": "bidirectional"
+  },
+  "evidence": [
+    "2025-12 manual matches supplied NT2_LINK and RM1_LANELINE field names and codes.",
+    "PDF pages 151 and 168 specify travel-oriented link geometry and FromNode/ToNode start/end associations; all supplied endpoint XY positions matched these nodes exactly.",
+    "Direction 1/2 denote road-address direction, so both retain the supplied travel-oriented link ordering. Direction 3 denotes a bidirectional unmarked road.",
+    "999 is other; only the seven supplied explicit solid remarks justify the dataset-specific solid mapping. Mixed 223/224 remain masked until stroke correspondence is established."
+  ],
+  "source_pdf_pages": {
+    "link_geometry_travel_order": 151,
+    "direction": 165,
+    "link_type": 166,
+    "from_to_nodes": 168,
+    "line_type": [
+      216,
+      217
+    ]
+  },
+  "direction_code_meanings": {
+    "1": "road endpoint direction",
+    "2": "road origin direction",
+    "3": "bidirectional road without center paint"
+  },
+  "direction_basis": "Link geometry is drawn in travel direction, FromNode to ToNode. Direction 1/2 is road-address direction, not coordinate reversal.",
+  "link_type_codes": {
+    "100": "at_grade_intersection",
+    "102": "roundabout",
+    "103": "turning_lane",
+    "300": "general_lane"
+  },
+  "dataset_scope": "Local APR01 supplied map. Schema/codes checked; 999 and mixed codes masked.",
+  "local_input_sha256": {
+    "RM1_LANELINE.shp": "5fc529107a11ede2426f56947c1fd9e9987a6ef6782194acfdc23ac98952bf1c",
+    "RM1_LANELINE.dbf": "8bfcb60fb5001c561104b7b30b76d5673b9cda304fd436ded56dc5183c46af9e",
+    "NT2_LINK.shp": "d3c7a3c200640356fee2674e1c2afea92daaf3ed9c4bfa58d14c9b9249bc1f14",
+    "NT2_LINK.dbf": "3d7c748f6997c25936fb16dc86f1f77db17266017649f623c725e04f5d32f862"
+  }
+}

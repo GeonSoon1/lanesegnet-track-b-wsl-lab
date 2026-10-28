@@ -1,0 +1,1 @@
+Derived from OpenDriveLab/LaneSegNet commit 9f12fe72a95dd991b3ec0a01cfbae5f3e9e961e0. Original preserved. Local adaptations: model-only imports, real camera detector base, MMDetection bbox coder registry.
