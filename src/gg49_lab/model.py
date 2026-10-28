@@ -1,4 +1,4 @@
-import sys,random,json
+import sys,random,json,copy
 import numpy as np,torch
 from torch import nn
 from torch.nn import functional as F
@@ -73,6 +73,9 @@ class LabModel(nn.Module):
             result.update({'topology.'+k:v for k,v in rel.items()});return result
     @torch.no_grad()
     def predict(self,img,metas,lidar=None):
+        # The legacy image extractor squeezes singleton batches in place.
+        # Keep callers' tensors/metadata reusable for input ablations.
+        img=img.clone();metas=copy.deepcopy(metas)
         feats,bev=self.features(img,metas,lidar)
         with torch.cuda.amp.autocast(enabled=False):
             outs=self.net.pts_bbox_head(feats,bev,metas)

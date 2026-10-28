@@ -29,7 +29,7 @@ checkpoint는 last에 모델/optimizer/scaler/step 기반 scheduler 정보/epoch
 QGIS export는 새 best의 실제 test 평가 추론을 사용한다. raw pred_*와 GT 없는 merged_*를 분리하며 GT는 비교에만 사용한다. 건수/CRS/XYZ/속성과 ZIP 검사를 통과해야 완료다.
 
 ## 현재 상태
-환경·데이터 준비와 초기 1 epoch 시연 및 SHP 검증을 완료했다. 라벨 분포 점검 후 v2 분할로 시연 및 24 epoch 비교 학습을 새로 진행한다. 최종 완료 여부와 수치는 SSD의 runs/reports가 근거다.
+영상/결합 모델 각24epoch, best checkpoint test 평가와 SHP 재읽기 검증을 완료했다. 최종 전체 검증의 근거는 reports/LOCAL_COMPLETION_AUDIT.json이다. 아래 과정 기록과 최종 결과를 구분해 확인한다.
 
 ## 이번 실행에서 확인한 진행
 
@@ -108,3 +108,49 @@ python3 scripts/local_control.py resume
 
 v2 시연1epoch: 57updates, val loss56.292421. CPU로 실제14val시점을 추론해 confidence0.5 이상5개 차로 예측, 4개 XYZ SHP레이어와 ZIP의 HTTP 다운로드 해시까지 검증했다. 최종24epoch 결과와 별개다.
 영상 모델24epoch/1368updates 완료. Best epoch7, val loss24.03852810178484. last의 optimizer/scheduler/RNG/순회 위치를 재읽어 확인했다. 이 시점에는 fusion 학습 중이며 test 평가 전이다.
+
+
+## 추론 입력 재사용 보완
+
+두24epoch 학습 후 fusion 검증 입력 ablation에서 원래 엔진의 singleton batch squeeze_가 호출자 이미지 차원을 바꿔 IndexError가 발생했다. predict가 입력 텐서와 메타데이터 사본을 사용하도록 보완했다. 학습된 best를 그대로 사용해 평가를 재실행하며, 첫 camera 평가 산출물은 attempt1 파일로 보존했다. 학습을 다시 시작한 것이 아니다.
+
+
+# 이 PC의 새 Track B 학습 결과
+
+실제 실행 완료 시점: 2026-10-28T14:32:35.716675+00:00
+
+기존 작성자의 결과를 재사용하지 않은 sj-20261028-v2- 실험이다. 로컬 F1이며 공식 OpenLane-V2 점수가 아니다.
+
+## sj-20261028-v2-camera-24e
+- 학습: 24 epoch / 1368 optimizer updates
+- Best: epoch 7, validation loss 24.03852810178484
+- Test F1@1m: 0.2971014492753623
+- Test F1@0.5m: 0.057971014492753624
+- 원시 예측 76개 / 병합 12개. 병합 정확도 향상을 뜻하지 않는다.
+- SHP: runs/sj-20261028-v2-camera-24e/qgis-export-v1/
+- ZIP: runs/sj-20261028-v2-camera-24e/qgis-export-v1.zip
+
+## sj-20261028-v2-fusion-24e
+- 학습: 24 epoch / 1368 optimizer updates
+- Best: epoch 8, validation loss 22.56091547012329
+- Test F1@1m: 0.2846715328467153
+- Test F1@0.5m: 0.06569343065693431
+- 원시 예측 74개 / 병합 8개. 병합 정확도 향상을 뜻하지 않는다.
+- SHP: runs/sj-20261028-v2-fusion-24e/qgis-export-v1/
+- ZIP: runs/sj-20261028-v2-fusion-24e/qgis-export-v1.zip
+
+두 모델 차이를 실제 test 지표로 비교해야 하며, loss 하락이나 학습 완료만으로 LiDAR 개선을 주장하지 않는다.
+작은 Track B 공간 분할과 파생 GT라는 한계가 있다. 병합은 GT 없는 후처리이며 전체 도로망 연결 보증이 아니다.
+
+
+## 실제 결과 해석
+
+영상/결합 각각24epoch와 test57시점 평가를 완료했다. F1@1m은 영상0.297101, 결합0.284672이며 F1@0.5m은 영상0.057971, 결합0.065693이다. 이번 한 분할에서 LiDAR의 일관된 우위는 확인하지 못했다.
+
+결합 모델은 실제 입력에 반응했다: validation B_0081의 관측455셀, 학습된 projection L2=0.107545, 반복 입력 최대 좌표차0m, LiDAR를0으로 바꾸면 전체query 최대 좌표차13.311667m. 이는 정확도 개선 증거와 별개다.
+
+sj-20261028-v2-camera-24e: 예측→GT 거리 원시 0.778984m → 병합 2.418345m. 선 감소를 성능 개선으로 보고하지 않는다.
+
+sj-20261028-v2-fusion-24e: 예측→GT 거리 원시 0.681617m → 병합 2.252726m. 선 감소를 성능 개선으로 보고하지 않는다.
+
+추론 입력 재사용 회귀 테스트 포함14개 테스트 통과. 원본 ZIP과 최초 완료 audit는 initial-verified/initial 이름으로 보존했다.

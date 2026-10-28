@@ -2,7 +2,7 @@
 
 카메라 6대와 촬영 시각에 맞춘 LiDAR로 Track B를 학습하고, 로컬 대시보드로 확인하며 QGIS용 SHP를 생성하는 실험 코드입니다.
 
-이 저장소에는 코드·대시보드·문서만 있습니다. 원본 데이터·가중치·캐시·학습 로그·추론 산출물은 SSD에서 별도로 관리합니다. 출처와 로컬 보완 사항은 [SOURCE_PROVENANCE.md](SOURCE_PROVENANCE.md)를 확인하세요.
+이 저장소에는 코드·대시보드·문서만 있습니다. 원본 데이터·가중치·캐시·학습 로그·추론 산출물은 SSD에서 별도로 관리합니다. 출처는 [SOURCE_PROVENANCE.md](SOURCE_PROVENANCE.md), 실제 수행 기록은 [LOCAL_WINDOWS_WSL_SJ.md](docs/LOCAL_WINDOWS_WSL_SJ.md)를 확인하세요.
 
 - [이 PC 실행·중지·재개 및 결과 안내](docs/LOCAL_WINDOWS_WSL_SJ.md)
 - [쉬운 시작 안내](docs/START_HERE.md)

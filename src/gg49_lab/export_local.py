@@ -82,6 +82,10 @@ def main():
  with (out/'README_KO.txt').open('a') as f:f.write('중심선은 차로 가운데의 주행 기준선, 좌우 경계는 그 차로 폭을 둘러싼 선입니다. ltype/rtype은 모델의 경계 유형 번호(0=표시 없음, 1=실선, 2=점선), -1은 참조용 미지정 값입니다. n_src는 병합에 사용한 관측 수입니다.\n새 분할은 train228/val14/test57입니다. 작은 검증 구간, 한 주행·한 환경, 파생 GT, 희소한 LiDAR 및 일부 미확인 유형이라는 한계가 있습니다. 이 SHP는 실제 운전에 사용할 검증된 HD 지도가 아닙니다.\n')
  with (out/'README_KO.txt').open('a') as f:f.write('좌우는 각 차로의 진행 방향 기준입니다. 일반 QGIS 2D 화면에서 높이가 보이지 않아도 원본 XYZ는 보존되어 있습니다. 정합은 여러 시점의 예측 대응·중복 병합이며 정답에 강제로 맞추는 작업이 아닙니다. 전후 위치오차와 GT 근접 길이 비교는 map-quality-comparison.json을 확인하세요.\n')
  with (out/'README_KO.txt').open('a') as f:f.write('gt_reference는 제공 NT2_LINK 원본을 test 관측 범위로 잘라낸 참조선입니다. 프레임마다 나눈 학습 GT 인스턴스와 선 개수·길이 정의가 다를 수 있습니다. 경계 유형0은 노면 표시가 없는 가상 경계 예측일 수 있습니다. Z 값은 보존했지만 수직 기준면을 별도 인증하지 않았습니다.\n')
+ raw_error=quality['raw']['prediction_to_gt']['mean_distance_m'];merged_error=quality['merged']['prediction_to_gt']['mean_distance_m']
+ with (out/'README_KO.txt').open('a') as f:
+  f.write(f'예측→GT 길이가중 평균 XYZ 거리: 원시 {raw_error}m, 병합 {merged_error}m. 중복 제거로 길이 가중치 분포도 달라지는 자체 진단이다.\n')
+  if raw_error is not None and merged_error is not None and merged_error>raw_error:f.write('이번 병합 후 이 거리 지표는 증가했다. QGIS에서는 pred_* 원시 예측을 GT와 먼저 비교하고 merged_*는 후처리 비교용으로 확인한다. 병합 성능 개선을 주장하지 않는다.\n')
  archive=run/'qgis-export-v1.zip'
  with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED) as z:
   for p in out.iterdir():z.write(p,p.name)

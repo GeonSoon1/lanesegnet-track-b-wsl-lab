@@ -428,3 +428,51 @@ demo-camera-20261026-224854-5342는 1 epoch/48 step 완료, validation loss 52.9
 v2 영상 모델 step157에서 status JSON 임시 파일 os.replace가 ENOENT로 실패했다. 정확한 OS 원인은 단정하지 않는다. 감독 프로세스가 마지막 checkpoint(step150)에서 자동 재개했고 저장되지 않은151~157은 다시 계산했다. 원본 metrics/log는 보존한다.
 임시 파일 이름을 호출별 UUID로 바꾸고 fsync 및 제한된 재시도를 추가했다. 해당 오류와 동일 프로세스 동시 저장 회귀 테스트를 포함해13개 테스트를 통과했다. checkpoint도 새 임시 이름으로 원자 교체한다. Dashboard/그래프는 반복 step의 마지막 시도 값을 표시하며 원본 JSONL을 유지한다.
 실제 본 학습을 안전 중지해 새 코드로 재개했다. 저장 step 397, epoch index 6, 데이터 위치 220. reports/main-v2-resume-saved.json 및 run의 resume-events.jsonl을 확인한다.
+
+
+## 추론 입력 재사용 보완
+
+두24epoch 학습 후 fusion 검증 입력 ablation에서 원래 엔진의 singleton batch squeeze_가 호출자 이미지 차원을 바꿔 IndexError가 발생했다. predict가 입력 텐서와 메타데이터 사본을 사용하도록 보완했다. 학습된 best를 그대로 사용해 평가를 재실행하며, 첫 camera 평가 산출물은 attempt1 파일로 보존했다. 학습을 다시 시작한 것이 아니다.
+
+
+## 새 PC 실행 최종 검증
+
+# 이 PC의 새 Track B 학습 결과
+
+실제 실행 완료 시점: 2026-10-28T14:32:35.716675+00:00
+
+기존 작성자의 결과를 재사용하지 않은 sj-20261028-v2- 실험이다. 로컬 F1이며 공식 OpenLane-V2 점수가 아니다.
+
+## sj-20261028-v2-camera-24e
+- 학습: 24 epoch / 1368 optimizer updates
+- Best: epoch 7, validation loss 24.03852810178484
+- Test F1@1m: 0.2971014492753623
+- Test F1@0.5m: 0.057971014492753624
+- 원시 예측 76개 / 병합 12개. 병합 정확도 향상을 뜻하지 않는다.
+- SHP: runs/sj-20261028-v2-camera-24e/qgis-export-v1/
+- ZIP: runs/sj-20261028-v2-camera-24e/qgis-export-v1.zip
+
+## sj-20261028-v2-fusion-24e
+- 학습: 24 epoch / 1368 optimizer updates
+- Best: epoch 8, validation loss 22.56091547012329
+- Test F1@1m: 0.2846715328467153
+- Test F1@0.5m: 0.06569343065693431
+- 원시 예측 74개 / 병합 8개. 병합 정확도 향상을 뜻하지 않는다.
+- SHP: runs/sj-20261028-v2-fusion-24e/qgis-export-v1/
+- ZIP: runs/sj-20261028-v2-fusion-24e/qgis-export-v1.zip
+
+두 모델 차이를 실제 test 지표로 비교해야 하며, loss 하락이나 학습 완료만으로 LiDAR 개선을 주장하지 않는다.
+작은 Track B 공간 분할과 파생 GT라는 한계가 있다. 병합은 GT 없는 후처리이며 전체 도로망 연결 보증이 아니다.
+
+
+## 실제 결과 해석
+
+영상/결합 각각24epoch와 test57시점 평가를 완료했다. F1@1m은 영상0.297101, 결합0.284672이며 F1@0.5m은 영상0.057971, 결합0.065693이다. 이번 한 분할에서 LiDAR의 일관된 우위는 확인하지 못했다.
+
+결합 모델은 실제 입력에 반응했다: validation B_0081의 관측455셀, 학습된 projection L2=0.107545, 반복 입력 최대 좌표차0m, LiDAR를0으로 바꾸면 전체query 최대 좌표차13.311667m. 이는 정확도 개선 증거와 별개다.
+
+sj-20261028-v2-camera-24e: 예측→GT 거리 원시 0.778984m → 병합 2.418345m. 선 감소를 성능 개선으로 보고하지 않는다.
+
+sj-20261028-v2-fusion-24e: 예측→GT 거리 원시 0.681617m → 병합 2.252726m. 선 감소를 성능 개선으로 보고하지 않는다.
+
+추론 입력 재사용 회귀 테스트 포함14개 테스트 통과. 원본 ZIP과 최초 완료 audit는 initial-verified/initial 이름으로 보존했다.
